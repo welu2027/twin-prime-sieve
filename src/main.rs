@@ -339,10 +339,9 @@ fn main() {
       // Since 210 | modpg for all PG>=P7, (r_hi-2) % 210 gives the mod210 class.
       let mut class_counts = [0usize; 210];
       for (i, r_hi) in restwins.iter().enumerate() {
-        if *r_hi <= modpg {   // skip sentinel (modpg+1)
-          let lo_res = (r_hi - 2) % 210;
-          class_counts[lo_res] += cnts[i];
-        }
+        // modpg+1 is the valid (modpg-1, modpg+1) twin pair, not a sentinel
+        let lo_res = (r_hi - 2) % 210;
+        class_counts[lo_res] += cnts[i];
       }
       println!("mod210,count");
       for (r, &cnt) in class_counts.iter().enumerate() {

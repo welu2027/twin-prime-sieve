@@ -60,7 +60,9 @@ def run_per_class(start: int, end: int, verbose: bool = True) -> pd.DataFrame:
     if verbose:
         # Print non-CSV lines (progress/timing) to stdout
         for line in result.stdout.splitlines():
-            if not (line[0].isdigit() and "," in line) and line != "mod210,count":
+            if not line:
+                continue
+            if line != "mod210,count" and not (line[0].isdigit() and "," in line):
                 print(line)
 
     # Parse the CSV section
