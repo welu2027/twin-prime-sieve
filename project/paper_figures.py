@@ -2,10 +2,10 @@
 Publication-quality figures for the twin prime residue class paper.
 
 Generates 4 figures saved to data/figures/:
-  fig1_gap_deviation.pdf       -- mean hl_ratio per mod210 class w/ error bars
-  fig2_significance.pdf        -- Bonferroni volcano plot
-  fig3_ablation_10e12.pdf      -- count-based hl_ratio per class across 1e9–1e12 ranges
-  fig4_pysr_fit.pdf            -- PySR best formula vs actual class hl_ratio
+  fig1_gap_deviation.png       -- mean hl_ratio per mod210 class w/ error bars
+  fig2_significance.png        -- Bonferroni volcano plot
+  fig3_ablation_10e12.png      -- count-based hl_ratio per class across 1e9–1e12 ranges
+  fig4_pysr_fit.png            -- PySR best formula vs actual class hl_ratio
 
 Usage:
   python paper_figures.py
@@ -55,13 +55,13 @@ def fig1_gap_deviation():
     ax.axhline(0, color="black", linewidth=1.2, linestyle="--")
     ax.set_xticks(x)
     ax.set_xticklabels(df["mod210"].astype(str), rotation=60, ha="right")
-    ax.set_xlabel("$p \\bmod 210$ (residue class)")
+    ax.set_xlabel("$p \\,\\mathrm{mod}\\, 210$ (residue class)")
     ax.set_ylabel("Mean hl_ratio $-$ 1  (deviation from H-L)")
     ax.set_title("Gap-Spacing Deviation from Hardy-Littlewood by mod 210 Class\n"
                  "(error bars = SEM; blue = below H-L, red = above H-L)")
     ax.grid(axis="y", alpha=0.3, zorder=1)
     fig.tight_layout()
-    out = FIGURES_DIR / "fig1_gap_deviation.pdf"
+    out = FIGURES_DIR / "fig1_gap_deviation.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved {out}")
@@ -100,7 +100,7 @@ def fig2_significance():
     ax.set_title("Significance of Residue Class Deviations\n(t-test vs H-L prediction of 1.0)")
     ax.legend()
     fig.tight_layout()
-    out = FIGURES_DIR / "fig2_significance.pdf"
+    out = FIGURES_DIR / "fig2_significance.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved {out}")
@@ -119,6 +119,7 @@ def fig3_ablation():
         df = pd.read_csv(f)
         all_dfs.append(df)
     combined = pd.concat(all_dfs, ignore_index=True)
+    combined = combined.dropna(subset=["range"])
 
     range_labels = sorted(combined["range"].unique())
     classes = sorted(combined["mod210"].unique())
@@ -136,7 +137,7 @@ def fig3_ablation():
     axes[0].axhline(1.0, color="black", linewidth=1.2, linestyle="--", label="H-L = 1.0")
     axes[0].set_xticks(range(len(classes)))
     axes[0].set_xticklabels([str(c) for c in classes], rotation=60, ha="right")
-    axes[0].set_xlabel("$p \\bmod 210$ (residue class)")
+    axes[0].set_xlabel("$p \\,\\mathrm{mod}\\, 210$ (residue class)")
     axes[0].set_ylabel("Count-based hl_ratio")
     axes[0].set_title("Count-Based H-L Ratio per Class Across Decades")
     axes[0].legend(fontsize=8)
@@ -166,7 +167,7 @@ def fig3_ablation():
     axes[1].set_title("Spearman Rank Correlation of Class hl_ratio\nAcross Decade Ranges")
 
     fig.tight_layout()
-    out = FIGURES_DIR / "fig3_ablation_10e12.pdf"
+    out = FIGURES_DIR / "fig3_ablation_10e12.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved {out}")
@@ -224,7 +225,7 @@ def fig4_pysr_fit():
     axes[1].grid(axis="y", alpha=0.3)
 
     fig.tight_layout()
-    out = FIGURES_DIR / "fig4_pysr_fit.pdf"
+    out = FIGURES_DIR / "fig4_pysr_fit.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved {out}")
