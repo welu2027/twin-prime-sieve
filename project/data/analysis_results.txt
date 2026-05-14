@@ -1,5 +1,5 @@
 Twin Prime Analysis Results
-Generated: 2026-05-14 18:23:26
+Generated: 2026-05-14 18:43:00
 Loaded 3,424,502 rows.
 
 ============================================================
@@ -45,6 +45,144 @@ mod210
 Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/hl_ratio_by_mod210.png
 
 ============================================================
+Statistical Significance: Residue Class Deviations from H-L
+============================================================
+Classes tested  : 15
+Significant (p<0.01): 14  [6 below H-L, 8 above H-L]
+
+Full significance table (sorted by mean hl_ratio):
+ mod210  mean_hl_ratio      std      n     t_stat       p_value  significant
+    149       0.954662 0.934619 228207 -23.173496 1.156663e-118         True
+    167       0.956619 0.953165 228395 -21.750802 8.678769e-105         True
+    179       0.961874 0.955841 228333 -19.060072  6.266597e-81         True
+    137       0.962402 0.948794 228086 -18.925283  8.132071e-80         True
+    191       0.966857 0.951817 228138 -16.631718  4.468063e-62         True
+    101       0.989602 0.945076 228252  -5.256521  1.469380e-07         True
+    197       0.995386 0.951875 228696  -2.317921  2.045448e-02        False
+    209       1.009893 0.953729 228003   4.953277  7.302591e-07         True
+     11       1.014114 0.952656 228234   7.078011  1.466564e-12         True
+     17       1.017697 0.943318 228358   8.964858  3.129406e-19         True
+    107       1.022844 0.949162 228543  11.505781  1.257912e-30         True
+     71       1.027540 0.938909 228377  14.017322  1.274610e-44         True
+     59       1.035093 0.951074 228061  17.620871  1.894615e-69         True
+     41       1.037063 0.930695 228151  19.021430  1.309179e-80         True
+     29       1.047852 0.946671 228494  24.162039 8.106699e-129         True
+
+Most significant BELOW H-L (gap smaller than predicted):
+ mod210  mean_hl_ratio      std      n     t_stat       p_value  significant
+    149       0.954662 0.934619 228207 -23.173496 1.156663e-118         True
+    167       0.956619 0.953165 228395 -21.750802 8.678769e-105         True
+    179       0.961874 0.955841 228333 -19.060072  6.266597e-81         True
+    137       0.962402 0.948794 228086 -18.925283  8.132071e-80         True
+    191       0.966857 0.951817 228138 -16.631718  4.468063e-62         True
+    101       0.989602 0.945076 228252  -5.256521  1.469380e-07         True
+
+Most significant ABOVE H-L (gap larger than predicted):
+ mod210  mean_hl_ratio      std      n    t_stat       p_value  significant
+     29       1.047852 0.946671 228494 24.162039 8.106699e-129         True
+     41       1.037063 0.930695 228151 19.021430  1.309179e-80         True
+     59       1.035093 0.951074 228061 17.620871  1.894615e-69         True
+     71       1.027540 0.938909 228377 14.017322  1.274610e-44         True
+    107       1.022844 0.949162 228543 11.505781  1.257912e-30         True
+     17       1.017697 0.943318 228358  8.964858  3.129406e-19         True
+     11       1.014114 0.952656 228234  7.078011  1.466564e-12         True
+    209       1.009893 0.953729 228003  4.953277  7.302591e-07         True
+
+Bonferroni-corrected (α=0.0006667): 14 classes remain significant
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/hl_significance_table.png
+
+============================================================
+Comparison with H-L Singular Series
+============================================================
+Under standard H-L, all 48 valid mod210 classes should have hl_ratio = 1.0.
+If deviations correlate with number-theoretic features of each class, that
+is evidence the deviations go BEYOND what H-L already accounts for.
+
+Feature        Pearson r       p-value  Spearman r
+----------------------------------------------------
+dist_7           -0.2219      4.27e-01     -0.2243
+dist_11          -0.0434      8.78e-01      0.0473
+dist_13          -0.1260      6.55e-01     -0.0551
+dist_17           0.2457      3.77e-01      0.2754
+dist_19           0.1314      6.41e-01      0.1004
+dist_23          -0.0089      9.75e-01     -0.0881
+isolation         0.0731      7.96e-01      0.0665
+
+Strongest predictor: dist_17  (r=0.2457)
+
+Interpretation: correlation with dist_* features means classes 'near' multiples
+of primes outside the wheel (11, 13, ...) behave differently from H-L.
+This is a higher-order correction beyond the standard C₂ singular series.
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/hl_singular_series.png
+
+============================================================
+Ablation: Class Deviations Across log_p Sub-ranges
+============================================================
+Range (log_p)              N twins   Classes w/ data
+------------------------------------------------------
+  [11,12)  (p~10^4.8–10^5.2)       1,015                15
+  [12,13)  (p~10^5.2–10^5.6)       2,314                15
+  [13,14)  (p~10^5.6–10^6.1)       5,471                15
+  [14,15)  (p~10^6.1–10^6.5)      12,942                15
+  [15,16)  (p~10^6.5–10^6.9)      30,704                15
+  [16,17)  (p~10^6.9–10^7.4)      73,386                15
+  [17,18)  (p~10^7.4–10^7.8)     177,000                15
+  [18,19)  (p~10^7.8–10^8.3)     431,447                15
+  [19,20)  (p~10^8.3–10^8.7)   1,056,230                15
+  [20,21)  (p~10^8.7–10^9.1)   1,633,089                15
+
+Spearman rank correlations of class rankings across ranges:
+  [11,12) vs [12,13): r=0.6214  p=1.34e-02
+  [11,12) vs [13,14): r=0.4036  p=1.36e-01
+  [11,12) vs [14,15): r=0.3643  p=1.82e-01
+  [11,12) vs [15,16): r=0.5679  p=2.72e-02
+  [11,12) vs [16,17): r=0.6393  p=1.03e-02
+  [11,12) vs [17,18): r=0.6679  p=6.51e-03
+  [11,12) vs [18,19): r=0.6464  p=9.21e-03
+  [11,12) vs [19,20): r=0.6393  p=1.03e-02
+  [11,12) vs [20,21): r=0.6143  p=1.48e-02
+  [12,13) vs [13,14): r=0.7071  p=3.20e-03
+  [12,13) vs [14,15): r=0.6429  p=9.74e-03
+  [12,13) vs [15,16): r=0.8321  p=1.19e-04
+  [12,13) vs [16,17): r=0.7714  p=7.57e-04
+  [12,13) vs [17,18): r=0.8500  p=6.00e-05
+  [12,13) vs [18,19): r=0.8607  p=3.81e-05
+  [12,13) vs [19,20): r=0.8321  p=1.19e-04
+  [12,13) vs [20,21): r=0.7821  p=5.70e-04
+  [13,14) vs [14,15): r=0.8786  p=1.63e-05
+  [13,14) vs [15,16): r=0.8250  p=1.53e-04
+  [13,14) vs [16,17): r=0.7536  p=1.18e-03
+  [13,14) vs [17,18): r=0.8036  p=3.07e-04
+  [13,14) vs [18,19): r=0.8500  p=6.00e-05
+  [13,14) vs [19,20): r=0.8357  p=1.04e-04
+  [13,14) vs [20,21): r=0.8571  p=4.45e-05
+  [14,15) vs [15,16): r=0.8393  p=9.14e-05
+  [14,15) vs [16,17): r=0.8071  p=2.75e-04
+  [14,15) vs [17,18): r=0.8286  p=1.35e-04
+  [14,15) vs [18,19): r=0.8250  p=1.53e-04
+  [14,15) vs [19,20): r=0.8893  p=9.19e-06
+  [14,15) vs [20,21): r=0.8964  p=6.07e-06
+  [15,16) vs [16,17): r=0.8964  p=6.07e-06
+  [15,16) vs [17,18): r=0.9107  p=2.40e-06
+  [15,16) vs [18,19): r=0.9143  p=1.85e-06
+  [15,16) vs [19,20): r=0.8893  p=9.19e-06
+  [15,16) vs [20,21): r=0.9179  p=1.42e-06
+  [16,17) vs [17,18): r=0.9179  p=1.42e-06
+  [16,17) vs [18,19): r=0.8607  p=3.81e-05
+  [16,17) vs [19,20): r=0.9214  p=1.07e-06
+  [16,17) vs [20,21): r=0.9179  p=1.42e-06
+  [17,18) vs [18,19): r=0.9714  p=1.69e-09
+  [17,18) vs [19,20): r=0.9679  p=3.60e-09
+  [17,18) vs [20,21): r=0.9500  p=6.09e-08
+  [18,19) vs [19,20): r=0.9500  p=6.09e-08
+  [18,19) vs [20,21): r=0.9536  p=3.79e-08
+  [19,20) vs [20,21): r=0.9821  p=8.16e-11
+
+Interpretation: high Spearman r across ranges means class deviations
+are consistent and not finite-size effects.
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/hl_range_ablation.png
+
+============================================================
 ML Model Comparison
 ============================================================
 Naive baselines:
@@ -77,14 +215,23 @@ Note: coefficient ~1.32 ≈ 2×C₂ = 1.3203 means PySR rediscovered H-L constan
 ============================================================
 Output Files
 ============================================================
+  analysis_results.txt
   gap_distribution.png
+  hl_range_ablation.png
   hl_ratio_by_mod210.png
+  hl_significance_table.png
+  hl_singular_series.png
   model_comparison.png
   model_lstm.pt
   model_randomforest.pkl
   model_xgboost.pkl
   pipeline_results.txt
   pysr_equations.csv
+  pysr_residue_equations.csv
+  pysr_residue_run.txt
+  residue_class_equations.csv
+  residue_class_pysr.txt
+  residue_class_stats.csv
   twin_prime_density.png
   twin_primes.parquet
   twin_primes_features.parquet
