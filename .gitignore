@@ -14,11 +14,7 @@ venv/
 *.pt
 project/data/pipeline_results.txt
 !project/data/pysr_equations.csv
-!project/data/pysr_residue_run.txt
-!project/data/residue_class_stats.csv
-!project/data/residue_class_pysr.txt
-!project/data/residue_class_equations.csv
-!project/data/pysr_residue_equations.csv
-!project/data/rust_class_counts*.csv
 !project/data/analysis_results.txt
-!project/data/*.png
+!project/data/residue/
+!project/data/counts/
+!project/data/figures/

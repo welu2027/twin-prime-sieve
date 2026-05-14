@@ -15,7 +15,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from utils import DATA_DIR
+from utils import DATA_DIR, MODELS_DIR
 
 
 class GapLSTM(nn.Module):
@@ -104,7 +104,7 @@ def main():
               f"train_loss={train_loss/len(X_train):.4f} | "
               f"test_loss={test_loss/len(X_test):.4f}")
 
-    out = DATA_DIR / "model_lstm.pt"
+    out = MODELS_DIR / "model_lstm.pt"
     torch.save({"model_state": model.state_dict(),
                 "gap_mean": gap_mean, "gap_std": gap_std,
                 "seq_len": args.seq_len, "hidden": args.hidden,

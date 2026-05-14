@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 from pysr import PySRRegressor
 
-from utils import DATA_DIR
+from utils import DATA_DIR, RESIDUE_DIR
 
 DEFAULT_FEATURES  = ["log_p", "mod210", "mod2310", "local_density"]
 RESIDUE_FEATURES  = ["log_p", "mod210", "mod2310"]
@@ -79,8 +79,8 @@ def main():
     args = parser.parse_args()
 
     feature_cols = RESIDUE_FEATURES if args.focus_residues else DEFAULT_FEATURES
-    out_csv = DATA_DIR / ("pysr_residue_equations.csv" if args.focus_residues else "pysr_equations.csv")
-    out_txt = DATA_DIR / ("pysr_residue_run.txt" if args.focus_residues else "pysr_run.txt")
+    out_csv = RESIDUE_DIR / ("pysr_residue_equations.csv" if args.focus_residues else "pysr_equations.csv")
+    out_txt = RESIDUE_DIR / ("pysr_residue_run.txt" if args.focus_residues else "pysr_run.txt")
 
     notes_path = write_run_notes(out_txt, args, feature_cols)
     print(f"Run notes → {notes_path}")

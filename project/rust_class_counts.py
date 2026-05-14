@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 from scipy import integrate, stats
 
-from utils import BINARY, DATA_DIR
+from utils import BINARY, COUNTS_DIR
 
 C2 = 0.6601618158468696
 
@@ -123,7 +123,7 @@ def run_ablation(thresholds: list[float]):
             print_summary(df, start, end)
             all_results[label] = df.set_index("mod210")["hl_ratio"]
             df["range"] = label
-            out = DATA_DIR / f"rust_class_counts_{start}_{end}.csv"
+            out = COUNTS_DIR / f"rust_class_counts_{start}_{end}.csv"
             df.to_csv(out, index=False)
             print(f"Saved {out}")
         except Exception as e:
@@ -165,7 +165,7 @@ def main():
     df = compute_hl_ratios(raw, start, end)
     print_summary(df, start, end)
 
-    out = args.out or str(DATA_DIR / f"rust_class_counts_{start}_{end}.csv")
+    out = args.out or str(COUNTS_DIR / f"rust_class_counts_{start}_{end}.csv")
     df.to_csv(out, index=False)
     print(f"\nSaved {out}")
 

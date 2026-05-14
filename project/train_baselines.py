@@ -17,7 +17,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 
-from utils import DATA_DIR
+from utils import DATA_DIR, MODELS_DIR
 
 FEATURE_COLS = [
     "log_p", "gap_before", "mod30", "mod210", "mod2310",
@@ -91,7 +91,7 @@ def main():
         print(f"Training {name}...")
         model.fit(X_train, y_train)
         results.append(evaluate(name, model, X_test, y_test))
-        out = DATA_DIR / f"model_{name.lower()}.pkl"
+        out = MODELS_DIR / f"model_{name.lower()}.pkl"
         with open(out, "wb") as f:
             pickle.dump(model, f)
         print(f"  Saved to {out}")

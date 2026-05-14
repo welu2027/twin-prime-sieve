@@ -20,7 +20,7 @@ import pandas as pd
 from pysr import PySRRegressor
 from scipy import stats
 
-from utils import DATA_DIR
+from utils import DATA_DIR, RESIDUE_DIR
 
 SMALL_PRIMES = [2, 3, 5, 7, 11, 13]  # primes dividing 2310
 
@@ -71,7 +71,7 @@ def main():
     class_df = pd.DataFrame(results)
     class_df = class_df.sort_values("mean_hl_ratio")
 
-    out_csv = DATA_DIR / "residue_class_stats.csv"
+    out_csv = RESIDUE_DIR / "residue_class_stats.csv"
     class_df.to_csv(out_csv, index=False)
     print(f"Saved {out_csv}")
 
@@ -102,7 +102,7 @@ def main():
     )
     model.fit(X, y, variable_names=feat_cols)
 
-    out_txt = DATA_DIR / "residue_class_pysr.txt"
+    out_txt = RESIDUE_DIR / "residue_class_pysr.txt"
     lines = [
         "PySR on class-level residue features",
         "="*60,
@@ -122,7 +122,7 @@ def main():
     out_txt.write_text(text)
     print(f"\nSaved {out_txt}")
 
-    model.equations_.to_csv(DATA_DIR / "residue_class_equations.csv", index=False)
+    model.equations_.to_csv(RESIDUE_DIR / "residue_class_equations.csv", index=False)
 
 
 if __name__ == "__main__":
