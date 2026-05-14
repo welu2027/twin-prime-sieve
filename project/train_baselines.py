@@ -20,9 +20,9 @@ from xgboost import XGBRegressor
 from utils import DATA_DIR
 
 FEATURE_COLS = [
-    "log_p", "gap_before", "mod30", "mod210",
+    "log_p", "gap_before", "mod30", "mod210", "mod2310",
     "local_density", "hl_density", "log_gap_ratio",
-    "index_norm",
+    "rolling_mean_gap", "rolling_std_gap", "index_norm",
 ]
 TARGET = "gap_after"
 
@@ -33,6 +33,17 @@ def evaluate(name: str, model, X_test, y_test):
     r2 = r2_score(y_test, preds)
     print(f"[{name}] MAE={mae:.2f}  R²={r2:.4f}")
     return {"name": name, "mae": mae, "r2": r2}
+
+
+def naive_baselines(y_train, y_test, gap_before_test):
+    """Print MAE/R² for trivial predictors so ML results can be compared honestly."""
+    mean_pred = np.full_like(y_test, y_train.mean())
+    prev_pred  = gap_before_test
+
+    for name, preds in [("Naive-Mean", mean_pred), ("Naive-PrevGap", prev_pred)]:
+        mae = mean_absolute_error(y_test, preds)
+        r2  = r2_score(y_test, preds)
+        print(f"[{name:20s}] MAE={mae:.2f}  R²={r2:.4f}")
 
 
 def main():
@@ -50,9 +61,15 @@ def main():
 
     X = df[FEATURE_COLS].values.astype(np.float32)
     y = df[TARGET].values.astype(np.float32)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=args.test_size, random_state=args.seed
+    gap_before_all = df["gap_before"].values.astype(np.float32)
+
+    X_train, X_test, y_train, y_test, _, gb_test = train_test_split(
+        X, y, gap_before_all, test_size=args.test_size, random_state=args.seed
     )
+
+    print("--- Naive baselines ---")
+    naive_baselines(y_train, y_test, gb_test)
+    print("--- ML models ---")
 
     models = {
         "XGBoost": XGBRegressor(

@@ -19,8 +19,9 @@ from sklearn.model_selection import train_test_split
 from utils import DATA_DIR
 
 FEATURE_COLS = [
-    "log_p", "gap_before", "mod30", "mod210",
-    "local_density", "hl_density", "log_gap_ratio", "index_norm",
+    "log_p", "gap_before", "mod30", "mod210", "mod2310",
+    "local_density", "hl_density", "log_gap_ratio",
+    "rolling_mean_gap", "rolling_std_gap", "index_norm",
 ]
 TARGET = "gap_after"
 plt.rcParams.update({"figure.dpi": 120, "figure.figsize": (9, 5)})

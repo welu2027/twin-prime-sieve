@@ -43,10 +43,11 @@ def add_features(df: pd.DataFrame, window: int = 100) -> pd.DataFrame:
         )
     df["log_gap_ratio"] = ratio
 
-    # residue classes
-    df["mod6"]   = df["p"] % 6
-    df["mod30"]  = df["p"] % 30
-    df["mod210"] = df["p"] % 210
+    # residue classes — mod210 and mod2310 are Prime Generator classes
+    df["mod6"]    = df["p"] % 6
+    df["mod30"]   = df["p"] % 30
+    df["mod210"]  = df["p"] % 210
+    df["mod2310"] = df["p"] % 2310
 
     # local density: twins in a rolling window of `window` consecutive twins
     # approximated as window / (p[i+window/2] - p[i-window/2])
@@ -60,15 +61,26 @@ def add_features(df: pd.DataFrame, window: int = 100) -> pd.DataFrame:
         density[i] = (hi - lo) / span
     df["local_density"] = density
 
+    # rolling stats of past gaps (shift by 1 so we only see past, not current row)
+    gap_series = pd.Series(gap_after, dtype=np.float64)
+    df["rolling_mean_gap"] = gap_series.shift(1).rolling(window=100, min_periods=1).mean().values
+    df["rolling_std_gap"]  = gap_series.shift(1).rolling(window=100, min_periods=1).std().fillna(0).values
+
     # normalized index
     df["index_norm"] = df["index"].values / (n - 1) if n > 1 else 0.0
 
-    # Hardy-Littlewood prediction for local density: C2 / (log p)^2
+    # Hardy-Littlewood prediction for local density: 2*C2 / (log p)^2
+    # pi_2(x) ~ 2*C2 * x / (ln x)^2, so density = 2*C2 / (ln p)^2
     C2 = 0.6601618158468696
-    df["hl_density"] = C2 / (np.log(p) ** 2)
+    df["hl_density"] = 2 * C2 / (np.log(p) ** 2)
 
     # residual from H-L prediction (deviation)
     df["density_residual"] = df["local_density"] - df["hl_density"]
+
+    # ratio of actual gap to H-L expected gap (1/hl_density = log_p^2/C2)
+    # hl_ratio ≈ 1 means H-L is correct; >1 means larger gap than expected
+    expected_hl_gap = 1.0 / df["hl_density"].values
+    df["hl_ratio"] = np.where(expected_hl_gap > 0, gap_after / expected_hl_gap, np.nan)
 
     return df
 
