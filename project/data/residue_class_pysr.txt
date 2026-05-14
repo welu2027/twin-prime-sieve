@@ -4,16 +4,15 @@ Target: mean hl_ratio per mod210 class (48 points)
 Features: number-theoretic properties of each class
 
 Top equations:
-                                                                 equation     loss  complexity
-                                                                0.9999663 0.000988           1
-                                    (mod210 * -0.00032728896) + 1.0362955 0.000501           5
-                          1.0335689 - ((mod210 * 0.00016155039) * dist_7) 0.000407           7
-                    1.0430977 - (mod210 * (sqrt(dist_13) * 0.0002190989)) 0.000325           8
-        (((0.0003952863 / dist_13) + -0.0005500533) * mod210) + 1.0431839 0.000310           9
-        1.0289725 - ((dist_13 * square(mod210 / 2416.9568)) / 0.31027737) 0.000297          10
-1.0211205 - ((dist_17 * (-0.1292802 / isolation)) + (mod210 / 2400.4531)) 0.000257          11
+                                                                     equation     loss  complexity
+                                                                    0.9999665 0.000988           1
+                                       (mod210 * -0.00032728896) - -1.0362955 0.000501           5
+                             1.0298684 - ((mod210 - mod70_r) * 0.00040046714) 0.000415           7
+                   1.0373654 - ((mod210 - (mod70_r / dist_7)) * 0.0004256876) 0.000327           9
+            1.0323023 - (((sqrt(dist_7) * mod210) - mod70_r) * 0.00032999087) 0.000287          10
+(1.0286833 - (mod210 * 0.00046384882)) - ((mod70_r / dist_7) * -0.0009837686) 0.000235          11
 
-Best: -0.0002190989*sqrt(dist_13)*mod210 + 1.0430977
+Best: -0.00046384882*mod210 + 1.0286833 - (-0.0009837686)*mod70_r/dist_7
 
 Interpretation: if the best equation involves dist_7, dist_11, etc.,
 it means gaps are larger/smaller when p is close to multiples of those primes.
