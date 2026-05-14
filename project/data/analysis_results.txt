@@ -1,0 +1,90 @@
+Twin Prime Analysis Results
+Generated: 2026-05-14 18:23:26
+Loaded 3,424,502 rows.
+
+============================================================
+Dataset Summary
+============================================================
+Total twin primes      : 3,424,502
+Range                  : p = 3 to 999,999,191
+Mean gap               : 292.0
+Median gap             : 210.0
+Max gap                : 4,770
+Mean hl_ratio          : 1.0002  (1.0 = perfect H-L)
+Std  hl_ratio          : 0.9491
+
+============================================================
+Density vs Hardy-Littlewood
+============================================================
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/twin_prime_density.png
+
+============================================================
+Gap Distribution
+============================================================
+Gap range: [2, 4770]
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/gap_distribution.png
+
+============================================================
+H-L Ratio by Residue Class (mod210)
+============================================================
+Residue classes with hl_ratio most BELOW 1.0 (gap smaller than H-L predicts):
+mod210
+149    0.954666
+167    0.956615
+179    0.961866
+137    0.962404
+191    0.966838
+
+Residue classes with hl_ratio most ABOVE 1.0 (gap larger than H-L predicts):
+mod210
+59    1.035095
+41    1.037088
+29    1.047861
+3     2.187870
+5     3.058322
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/hl_ratio_by_mod210.png
+
+============================================================
+ML Model Comparison
+============================================================
+Naive baselines:
+  Mean predictor  MAE=206.98
+  Prev gap        MAE=281.87  R²=-1.0028
+
+ML models:
+  model_randomforest         MAE=3.81  R²=0.9990
+  model_xgboost              MAE=6.31  R²=0.9943
+Saved /Users/welu28/Documents/GitHub/yimo-website/twin-prime-sieve/project/data/model_comparison.png
+
+============================================================
+PySR Symbolic Regression Results
+============================================================
+Target: hl_ratio  (gap_after / expected H-L gap)
+Best equation complexity 1: 1.0014274
+
+Top equations (by complexity):
+                                                         equation     loss  complexity
+                                                        1.0014274 0.899451           1
+                                        1.0054448 - local_density 0.899396           3
+                                0.058758263 / sqrt(local_density) 0.896731           4
+                     (0.0014045961 / local_density) - -0.59614235 0.896202           5
+                 (-0.23534182 - log(local_density)) - sqrt(log_p) 0.891410           7
+            (1.2747214 - log(local_density)) - log(square(log_p)) 0.891382           8
+(1.6990992 - log(local_density)) - log(square(log_p) * 1.5103173) 0.891316          10
+
+Note: coefficient ~1.32 ≈ 2×C₂ = 1.3203 means PySR rediscovered H-L constant.
+
+============================================================
+Output Files
+============================================================
+  gap_distribution.png
+  hl_ratio_by_mod210.png
+  model_comparison.png
+  model_lstm.pt
+  model_randomforest.pkl
+  model_xgboost.pkl
+  pipeline_results.txt
+  pysr_equations.csv
+  twin_prime_density.png
+  twin_primes.parquet
+  twin_primes_features.parquet

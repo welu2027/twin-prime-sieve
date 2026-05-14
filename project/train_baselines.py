@@ -51,12 +51,16 @@ def main():
     parser.add_argument("--inp", default=str(DATA_DIR / "twin_primes_features.parquet"))
     parser.add_argument("--test-size", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--max-train", type=int, default=500_000,
+                        help="Cap training rows (keeps eval fast; 500K is plenty for honest R²)")
     args = parser.parse_args()
 
     df = pd.read_parquet(args.inp)
     df = df.dropna(subset=FEATURE_COLS + [TARGET])
-    # drop last row (gap_after is 0 sentinel)
     df = df[df[TARGET] > 0]
+    if len(df) > args.max_train:
+        df = df.sample(args.max_train, random_state=args.seed)
+        print(f"Sampled {args.max_train:,} rows for training (full dataset: {len(df):,})")
     print(f"Training on {len(df):,} samples.")
 
     X = df[FEATURE_COLS].values.astype(np.float32)

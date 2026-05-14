@@ -1,0 +1,38 @@
+PySR Symbolic Regression Run
+Date      : 2026-05-14 18:27:59
+Mode      : residue-focus (no local_density)
+Features  : ['log_p', 'mod210', 'mod2310']
+Target    : hl_ratio
+Sample    : 200,000
+Iterations: 60
+
+============================================================
+RERUN REASON: Focus on residue class corrections
+
+The initial PySR run (with local_density as a feature) found only a
+local-density correction: hl_ratio ≈ 1.27 - log(local_density) - log(log_p²).
+This is mathematically equivalent to H-L and does not improve on it.
+
+However, analyze_results.py revealed systematic ~4-5% deviations from
+H-L in specific mod210 residue classes:
+  - p ≡ 29, 41, 59 mod 210: gaps ~4-5% LARGER than H-L predicts
+  - p ≡ 149, 167, 179 mod 210: gaps ~4-5% SMALLER than H-L predicts
+
+local_density was dominating the PySR search and masking this signal.
+This run removes local_density so PySR is forced to find residue-based
+corrections directly. If it finds a clean formula involving mod210 or
+mod2310, that would be a genuine improvement over Hardy-Littlewood.
+============================================================
+
+
+============================================================
+RESULTS
+============================================================
+                                                      equation     loss  complexity
+                                                     1.0014294 0.899451           1
+                             (mod210 / -2863.1086) + 1.0398216 0.898944           5
+                  (mod210 / (mod2310 + -4114.054)) + 1.0431347 0.898708           7
+       (mod210 / (mod2310 + (-4115.0977 + log_p))) + 1.0432855 0.898707           9
+sqrt((mod210 / (mod2310 + (mod210 + -3416.9485))) + 1.0623524) 0.898703          10
+
+Best equation: mod210/(-2863.1086) + 1.0398216

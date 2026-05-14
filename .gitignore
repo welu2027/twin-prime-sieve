@@ -1,1 +1,18 @@
+# Rust build artifacts
 /target
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+project/venv/
+venv/
+
+# Large data files — too big to commit
+*.parquet
+*.pkl
+*.pt
+project/data/pipeline_results.txt
+!project/data/pysr_equations.csv
+!project/data/analysis_results.txt
+!project/data/*.png
