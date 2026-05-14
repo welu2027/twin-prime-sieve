@@ -270,9 +270,15 @@ fn twins_sieve(r_hi: usize, kmin: usize, kmax: usize, ks: usize, start_num: usiz
 }
 
 fn main() {
-  let nums: Vec<String> = std::env::args().collect();
-  let n1: usize = nums[1].replace('_', "").parse().unwrap();
-  let n2: usize = if nums.len() < 3 { 3 } else { nums[2].replace('_', "").parse().unwrap() };
+  let all_args: Vec<String> = std::env::args().collect();
+  let per_class = all_args.iter().any(|a| a == "--per-class");
+  // Filter flags so numeric args are positionally correct
+  let nums: Vec<String> = all_args[1..].iter()
+      .filter(|a| !a.starts_with('-'))
+      .cloned()
+      .collect();
+  let n1: usize = nums[0].replace('_', "").parse().unwrap();
+  let n2: usize = if nums.len() < 2 { 3 } else { nums[1].replace('_', "").parse().unwrap() };
 
   let mut end_num = std::cmp::max(n1, 3); // min vals 3
   let mut start_num = std::cmp::max(n2, 3);
@@ -324,4 +330,24 @@ fn main() {
   print_time("total time", ts);          // setup + sieve time
   println!("last segment = {} resgroups; segment slices = {}", kn, (krange - 1)/ks + 1);
   println!("total twins = {}; last twin = {}|-2", twinscnt, last_twin);
+
+  if per_class {
+    if modpg < 210 {
+      eprintln!("WARNING: --per-class needs modpg>=210; use range > 77M");
+    } else {
+      // Each restwins[i]-2 is the lower residue of that twin pair in the PG ring.
+      // Since 210 | modpg for all PG>=P7, (r_hi-2) % 210 gives the mod210 class.
+      let mut class_counts = [0usize; 210];
+      for (i, r_hi) in restwins.iter().enumerate() {
+        if *r_hi <= modpg {   // skip sentinel (modpg+1)
+          let lo_res = (r_hi - 2) % 210;
+          class_counts[lo_res] += cnts[i];
+        }
+      }
+      println!("mod210,count");
+      for (r, &cnt) in class_counts.iter().enumerate() {
+        if cnt > 0 { println!("{},{}", r, cnt); }
+      }
+    }
+  }
 }

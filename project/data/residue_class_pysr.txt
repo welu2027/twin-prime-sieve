@@ -1,0 +1,20 @@
+PySR on class-level residue features
+============================================================
+Target: mean hl_ratio per mod210 class (48 points)
+Features: number-theoretic properties of each class
+
+Top equations:
+                                                                 equation     loss  complexity
+                                                                0.9999663 0.000988           1
+                                    (mod210 * -0.00032728896) + 1.0362955 0.000501           5
+                          1.0335689 - ((mod210 * 0.00016155039) * dist_7) 0.000407           7
+                    1.0430977 - (mod210 * (sqrt(dist_13) * 0.0002190989)) 0.000325           8
+        (((0.0003952863 / dist_13) + -0.0005500533) * mod210) + 1.0431839 0.000310           9
+        1.0289725 - ((dist_13 * square(mod210 / 2416.9568)) / 0.31027737) 0.000297          10
+1.0211205 - ((dist_17 * (-0.1292802 / isolation)) + (mod210 / 2400.4531)) 0.000257          11
+
+Best: -0.0002190989*sqrt(dist_13)*mod210 + 1.0430977
+
+Interpretation: if the best equation involves dist_7, dist_11, etc.,
+it means gaps are larger/smaller when p is close to multiples of those primes.
+That would be a genuine improvement over H-L.
