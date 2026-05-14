@@ -27,7 +27,7 @@ from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 
-from utils import DATA_DIR
+from utils import DATA_DIR, FIGURES_DIR, MODELS_DIR, RESIDUE_DIR
 
 FEATURE_COLS = [
     "log_p", "gap_before", "mod30", "mod210", "mod2310",
@@ -73,7 +73,7 @@ def plot_density(df: pd.DataFrame, buf: StringIO):
     ax.set_ylabel("Local twin prime density")
     ax.set_title("Twin Prime Density vs Hardy-Littlewood Prediction")
     ax.legend()
-    out = DATA_DIR / "twin_prime_density.png"
+    out = FIGURES_DIR / "twin_prime_density.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -88,7 +88,7 @@ def plot_gap_distribution(df: pd.DataFrame, buf: StringIO):
     ax.set_xlabel("Gap to next twin prime pair")
     ax.set_ylabel("Count")
     ax.set_title("Distribution of Twin Prime Gaps")
-    out = DATA_DIR / "gap_distribution.png"
+    out = FIGURES_DIR / "gap_distribution.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Gap range: [{gaps.min()}, {gaps.max()}]")
@@ -118,7 +118,7 @@ def plot_hl_ratio_by_residue(df: pd.DataFrame, buf: StringIO):
     ax.set_title("Deviation from Hardy-Littlewood by Residue Class (mod 210)")
     ax.legend()
     plt.xticks(rotation=45)
-    out = DATA_DIR / "hl_ratio_by_mod210.png"
+    out = FIGURES_DIR / "hl_ratio_by_mod210.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -140,7 +140,7 @@ def plot_model_comparison(df: pd.DataFrame, buf: StringIO):
     log(buf, f"  Mean predictor  MAE={mean_absolute_error(y_test, np.full_like(y_test, y_test.mean())):.2f}")
     log(buf, f"  Prev gap        MAE={mean_absolute_error(y_test, gb_test):.2f}  R²={r2_score(y_test, gb_test):.4f}")
 
-    model_files = sorted(DATA_DIR.glob("model_*.pkl"))
+    model_files = sorted(MODELS_DIR.glob("model_*.pkl"))
     if not model_files:
         log(buf, "No trained models found. Run main.py first.")
         return
@@ -165,7 +165,7 @@ def plot_model_comparison(df: pd.DataFrame, buf: StringIO):
         ax.set_title(f"{mf.stem}\nMAE={mae:.1f}, R²={r2:.3f}")
 
     fig.tight_layout()
-    out = DATA_DIR / "model_comparison.png"
+    out = FIGURES_DIR / "model_comparison.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -174,7 +174,7 @@ def plot_model_comparison(df: pd.DataFrame, buf: StringIO):
 def significance_table(buf: StringIO):
     """Task 1: Full t-test table showing which mod210 classes significantly deviate from H-L."""
     section(buf, "Statistical Significance: Residue Class Deviations from H-L")
-    stats_file = DATA_DIR / "residue_class_stats.csv"
+    stats_file = RESIDUE_DIR / "residue_class_stats.csv"
     if not stats_file.exists():
         log(buf, "residue_class_stats.csv not found. Run: python residue_analysis.py")
         return
@@ -222,7 +222,7 @@ def significance_table(buf: StringIO):
     axes[1].legend()
 
     fig.tight_layout()
-    out = DATA_DIR / "hl_significance_table.png"
+    out = FIGURES_DIR / "hl_significance_table.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -231,7 +231,7 @@ def significance_table(buf: StringIO):
 def singular_series_comparison(buf: StringIO):
     """Task 2: Show deviations correlate with number-theoretic features beyond H-L."""
     section(buf, "Comparison with H-L Singular Series")
-    stats_file = DATA_DIR / "residue_class_stats.csv"
+    stats_file = RESIDUE_DIR / "residue_class_stats.csv"
     if not stats_file.exists():
         log(buf, "residue_class_stats.csv not found. Run: python residue_analysis.py")
         return
@@ -290,7 +290,7 @@ def singular_series_comparison(buf: StringIO):
     plt.setp(axes[1].get_xticklabels(), rotation=30, ha="right")
 
     fig.tight_layout()
-    out = DATA_DIR / "hl_singular_series.png"
+    out = FIGURES_DIR / "hl_singular_series.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -351,7 +351,7 @@ def range_ablation(df: pd.DataFrame, buf: StringIO):
     ax.legend(fontsize=8, loc="upper right")
     plt.xticks(rotation=75, fontsize=6)
     fig.tight_layout()
-    out = DATA_DIR / "hl_range_ablation.png"
+    out = FIGURES_DIR / "hl_range_ablation.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     log(buf, f"Saved {out}")
@@ -359,7 +359,7 @@ def range_ablation(df: pd.DataFrame, buf: StringIO):
 
 def summarize_pysr(buf: StringIO):
     section(buf, "PySR Symbolic Regression Results")
-    eq_file = DATA_DIR / "pysr_equations.csv"
+    eq_file = RESIDUE_DIR / "pysr_equations.csv"
     if not eq_file.exists():
         log(buf, "No PySR equations found. Run main.py without --skip-symbolic.")
         return

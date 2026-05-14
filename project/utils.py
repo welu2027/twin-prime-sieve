@@ -5,7 +5,12 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).parent
 BINARY = PROJECT_DIR / "twinprimes_ssoz"
 DATA_DIR = PROJECT_DIR / "data"
-DATA_DIR.mkdir(exist_ok=True)
+FIGURES_DIR = DATA_DIR / "figures"
+MODELS_DIR = DATA_DIR / "models"
+COUNTS_DIR = DATA_DIR / "counts"
+RESIDUE_DIR = DATA_DIR / "residue"
+for _d in (DATA_DIR, FIGURES_DIR, MODELS_DIR, COUNTS_DIR, RESIDUE_DIR):
+    _d.mkdir(exist_ok=True)
 
 
 def run_sieve_count(n: int, start: int = None) -> dict:
