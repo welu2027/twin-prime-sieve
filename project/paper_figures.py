@@ -1,19 +1,20 @@
 """
 Publication-quality figures for the twin prime residue class paper.
 
-Generates 4 figures saved to data/figures/:
-  fig1_gap_deviation.png       -- mean hl_ratio per mod210 class w/ error bars
-  fig2_significance.png        -- Bonferroni volcano plot
-  fig3_ablation_10e12.png      -- count-based hl_ratio per class across 1e9–1e12 ranges
-  fig4_pysr_fit.png            -- PySR best formula vs actual class hl_ratio
+  fig1_gap_deviation.png   -- lollipop: mean hl_ratio per class w/ error bands
+  fig2_significance.png    -- volcano: Bonferroni significance
+  fig3_ablation.png        -- bump chart: class rank stability across 1e9–1e12
+  fig4_pysr_fit.png        -- scatter + residual lollipop: PySR formula fit
+  fig5_los.png             -- transition heatmap + anti-persistence scatter
 
-Usage:
+Run after los_comparison.py:
+  python los_comparison.py
   python paper_figures.py
 """
 import warnings
-from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
@@ -22,130 +23,153 @@ from utils import COUNTS_DIR, FIGURES_DIR, RESIDUE_DIR
 
 warnings.filterwarnings("ignore")
 
+# ── Style ─────────────────────────────────────────────────────────────────────
 plt.rcParams.update({
-    "figure.dpi": 150,
-    "font.size": 11,
-    "axes.titlesize": 12,
-    "axes.labelsize": 11,
-    "xtick.labelsize": 9,
-    "ytick.labelsize": 9,
-    "legend.fontsize": 9,
+    "figure.dpi": 180,
+    "font.family": "serif",
+    "font.size": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "legend.fontsize": 8,
+    "legend.framealpha": 0.9,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+    "axes.grid": True,
+    "grid.alpha": 0.25,
+    "grid.linewidth": 0.6,
     "pdf.fonttype": 42,
-    "ps.fonttype": 42,
 })
 
-BLUE = "#2166ac"
-RED = "#d6604d"
-GRAY = "#888888"
+BLUE  = "#2166ac"
+RED   = "#d6604d"
+TEAL  = "#4dac26"
+GRAY  = "#999999"
+LGRAY = "#dddddd"
 
 
-# ── Figure 1: Gap-based hl_ratio per class with error bars ────────────────────
-
-def fig1_gap_deviation():
-    df = pd.read_csv(RESIDUE_DIR / "residue_class_stats.csv")
-    df = df.sort_values("mean_hl_ratio")
-    x = np.arange(len(df))
-    colors = [RED if v > 1.0 else BLUE for v in df["mean_hl_ratio"]]
-
-    fig, ax = plt.subplots(figsize=(9, 4))
-    ax.bar(x, df["mean_hl_ratio"] - 1.0, color=colors, width=0.7, zorder=2)
-    ax.errorbar(x, df["mean_hl_ratio"] - 1.0,
-                yerr=df["std"] / np.sqrt(df["n"]),
-                fmt="none", color="black", capsize=2, linewidth=0.8, zorder=3)
-    ax.axhline(0, color="black", linewidth=1.2, linestyle="--")
-    ax.set_xticks(x)
-    ax.set_xticklabels(df["mod210"].astype(str), rotation=60, ha="right")
-    ax.set_xlabel("$p \\,\\mathrm{mod}\\, 210$ (residue class)")
-    ax.set_ylabel("Mean hl_ratio $-$ 1  (deviation from H-L)")
-    ax.set_title("Gap-Spacing Deviation from Hardy-Littlewood by mod 210 Class\n"
-                 "(error bars = SEM; blue = below H-L, red = above H-L)")
-    ax.grid(axis="y", alpha=0.3, zorder=1)
-    fig.tight_layout()
-    out = FIGURES_DIR / "fig1_gap_deviation.png"
-    fig.savefig(out, bbox_inches="tight")
+def _save(fig, name):
+    out = FIGURES_DIR / name
+    fig.savefig(out, bbox_inches="tight", dpi=180)
     plt.close(fig)
     print(f"Saved {out}")
 
 
-# ── Figure 2: Bonferroni volcano plot ─────────────────────────────────────────
+# ── Figure 1: Lollipop — gap deviation per class ──────────────────────────────
+
+def fig1_gap_deviation():
+    df = pd.read_csv(RESIDUE_DIR / "residue_class_stats.csv").sort_values("mean_hl_ratio")
+    dev = df["mean_hl_ratio"].values - 1.0
+    sem = (df["std"] / np.sqrt(df["n"])).values
+    labels = df["mod210"].astype(str).values
+    y = np.arange(len(df))
+    colors = [RED if v > 0 else BLUE for v in dev]
+
+    fig, ax = plt.subplots(figsize=(5, 7))
+    ax.axvline(0, color="black", linewidth=1.0, linestyle="--", zorder=1)
+    for yi, (d, s, c) in enumerate(zip(dev, sem, colors)):
+        ax.plot([0, d], [yi, yi], color=c, linewidth=1.2, zorder=2)
+        ax.errorbar(d, yi, xerr=2 * s, fmt="none", color=c,
+                    capsize=2.5, linewidth=0.8, zorder=3)
+        ax.scatter(d, yi, color=c, s=55, zorder=4, edgecolors="white", linewidths=0.5)
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels)
+    ax.set_xlabel("Mean gap hl_ratio $-$ 1  (deviation from H-L prediction)")
+    ax.set_ylabel("$p\\,\\mathrm{mod}\\,210$ residue class")
+    ax.grid(axis="x", alpha=0.25)
+    ax.grid(axis="y", alpha=0)
+
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], marker="o", color="w", markerfacecolor=RED, markersize=7, label="Above H-L"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor=BLUE, markersize=7, label="Below H-L"),
+    ]
+    ax.legend(handles=legend_elements, loc="lower right")
+    fig.tight_layout()
+    _save(fig, "fig1_gap_deviation.png")
+
+
+# ── Figure 2: Volcano — Bonferroni significance ───────────────────────────────
 
 def fig2_significance():
     df = pd.read_csv(RESIDUE_DIR / "residue_class_stats.csv")
     alpha_bonf = 0.01 / len(df)
-    bonf_line = -np.log10(alpha_bonf)
-    nominal_line = -np.log10(0.01)
+    bonf_line  = -np.log10(alpha_bonf)
 
     neg_log_p = -np.log10(df["p_value"].clip(lower=1e-300))
     deviation = df["mean_hl_ratio"] - 1.0
+    bonf_sig  = neg_log_p >= bonf_line
 
-    fig, ax = plt.subplots(figsize=(7, 5))
-    bonf_sig = neg_log_p >= bonf_line
+    fig, ax = plt.subplots(figsize=(6, 5))
     ax.scatter(deviation[~bonf_sig], neg_log_p[~bonf_sig],
-               color=GRAY, s=40, label="Not significant (Bonferroni)", zorder=2)
-    ax.scatter(deviation[bonf_sig], neg_log_p[bonf_sig],
-               color=RED, s=60, label=f"Bonferroni significant ({bonf_sig.sum()}/{len(df)})", zorder=3)
+               color=LGRAY, edgecolors=GRAY, s=45, linewidths=0.6,
+               label="Below Bonferroni threshold", zorder=2)
+    ax.scatter(deviation[bonf_sig & (deviation < 0)], neg_log_p[bonf_sig & (deviation < 0)],
+               color=BLUE, edgecolors="white", s=65, linewidths=0.5,
+               label=f"Significant, below H-L ({(bonf_sig & (deviation<0)).sum()})", zorder=3)
+    ax.scatter(deviation[bonf_sig & (deviation > 0)], neg_log_p[bonf_sig & (deviation > 0)],
+               color=RED, edgecolors="white", s=65, linewidths=0.5,
+               label=f"Significant, above H-L ({(bonf_sig & (deviation>0)).sum()})", zorder=3)
 
     for _, row in df[bonf_sig].iterrows():
+        nlp = -np.log10(max(row["p_value"], 1e-300))
         ax.annotate(str(int(row["mod210"])),
-                    xy=(row["mean_hl_ratio"] - 1.0, -np.log10(max(row["p_value"], 1e-300))),
-                    xytext=(3, 3), textcoords="offset points", fontsize=7)
+                    xy=(row["mean_hl_ratio"] - 1.0, nlp),
+                    xytext=(4, 2), textcoords="offset points",
+                    fontsize=7, color="#333333")
 
-    ax.axhline(bonf_line, color="red", linewidth=1.2, linestyle="--",
-               label=f"Bonferroni threshold (α={alpha_bonf:.4g})")
-    ax.axhline(nominal_line, color=GRAY, linewidth=0.8, linestyle=":",
-               label="Nominal p<0.01")
-    ax.axvline(0, color="black", linewidth=0.8, linestyle=":")
-    ax.set_xlabel("Mean hl_ratio $-$ 1  (deviation from H-L)")
-    ax.set_ylabel("$-\\log_{10}$(p-value)")
-    ax.set_title("Significance of Residue Class Deviations\n(t-test vs H-L prediction of 1.0)")
-    ax.legend()
+    ax.axhline(bonf_line, color=RED, linewidth=1.0, linestyle="--",
+               label=f"Bonferroni $\\alpha$={alpha_bonf:.2e}", zorder=1)
+    ax.axvline(0, color="black", linewidth=0.7, linestyle=":", zorder=1)
+    ax.set_xlabel("Mean hl_ratio $-$ 1")
+    ax.set_ylabel("$-\\log_{10}(p)$")
+    ax.legend(loc="upper left")
     fig.tight_layout()
-    out = FIGURES_DIR / "fig2_significance.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    print(f"Saved {out}")
+    _save(fig, "fig2_significance.png")
 
 
-# ── Figure 3: Count-based hl_ratio across 1e9–1e12 (Rust ablation) ────────────
+# ── Figure 3: Bump chart — class rank stability across 1e9–1e12 ───────────────
 
 def fig3_ablation():
     range_files = sorted(COUNTS_DIR.glob("rust_class_counts_*.csv"))
     if not range_files:
-        print("No rust_class_counts CSVs found. Run: python rust_class_counts.py --ablation ...")
+        print("No rust_class_counts CSVs. Run rust_class_counts.py --ablation first.")
         return
 
-    all_dfs = []
-    for f in range_files:
-        df = pd.read_csv(f)
-        all_dfs.append(df)
-    combined = pd.concat(all_dfs, ignore_index=True)
+    combined = pd.concat([pd.read_csv(f) for f in range_files], ignore_index=True)
     combined = combined.dropna(subset=["range"])
-
     range_labels = sorted(combined["range"].unique())
     classes = sorted(combined["mod210"].unique())
 
+    # Pivot to (class × range) hl_ratio, then rank within each range
+    pivot = combined.pivot_table(index="mod210", columns="range", values="hl_ratio")
+    pivot = pivot[range_labels].dropna()
+    ranks = pivot.rank(ascending=True)
+
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 
-    # Left: line plot of hl_ratio per class per range
-    cmap = plt.get_cmap("viridis")
-    for idx, label in enumerate(range_labels):
-        sub = combined[combined["range"] == label].set_index("mod210")
-        ys = [sub.loc[c, "hl_ratio"] if c in sub.index else np.nan for c in classes]
-        color = cmap(idx / max(len(range_labels) - 1, 1))
-        axes[0].plot(range(len(classes)), ys, marker="o", markersize=3,
-                     linewidth=1.2, label=label, color=color)
-    axes[0].axhline(1.0, color="black", linewidth=1.2, linestyle="--", label="H-L = 1.0")
-    axes[0].set_xticks(range(len(classes)))
-    axes[0].set_xticklabels([str(c) for c in classes], rotation=60, ha="right")
-    axes[0].set_xlabel("$p \\,\\mathrm{mod}\\, 210$ (residue class)")
-    axes[0].set_ylabel("Count-based hl_ratio")
-    axes[0].set_title("Count-Based H-L Ratio per Class Across Decades")
-    axes[0].legend(fontsize=8)
-    axes[0].grid(alpha=0.3)
+    # Left: bump chart (rank over ranges)
+    cmap = plt.get_cmap("tab20")
+    x_pos = np.arange(len(range_labels))
+    for i, cls in enumerate(pivot.index):
+        ys = ranks.loc[cls].values
+        color = cmap(i / len(pivot.index))
+        axes[0].plot(x_pos, ys, color=color, linewidth=1.3, alpha=0.8, marker="o",
+                     markersize=5, markeredgecolor="white", markeredgewidth=0.4)
+        axes[0].annotate(str(int(cls)), xy=(x_pos[-1], ys[-1]),
+                         xytext=(4, 0), textcoords="offset points",
+                         fontsize=6.5, va="center", color=color)
 
-    # Right: Spearman r heatmap between ranges
-    pivot = combined.pivot_table(index="mod210", columns="range", values="hl_ratio")
-    pivot = pivot.dropna()
+    axes[0].set_xticks(x_pos)
+    short = [l.replace("[1e", "$10^{").replace(",1e", "}$–$10^{").replace(")", "}$")
+             for l in range_labels]
+    axes[0].set_xticklabels(short, rotation=20, ha="right")
+    axes[0].set_ylabel("Rank (hl_ratio, low = below H-L)")
+    axes[0].set_xlabel("Decade range")
+    axes[0].invert_yaxis()
+
+    # Right: Spearman correlation heatmap
     n = len(range_labels)
     corr_matrix = np.ones((n, n))
     for i in range(n):
@@ -154,81 +178,144 @@ def fig3_ablation():
                 r, _ = spearmanr(pivot[range_labels[i]], pivot[range_labels[j]])
                 corr_matrix[i, j] = r
 
-    im = axes[1].imshow(corr_matrix, vmin=-1, vmax=1, cmap="RdBu_r")
+    im = axes[1].imshow(corr_matrix, vmin=0.5, vmax=1.0,
+                        cmap="Blues", aspect="auto")
     axes[1].set_xticks(range(n))
     axes[1].set_yticks(range(n))
-    short_labels = [l.replace("[1e", "10^").replace(",1e", "–10^").replace(")", "") for l in range_labels]
-    axes[1].set_xticklabels(short_labels, rotation=30, ha="right", fontsize=8)
-    axes[1].set_yticklabels(short_labels, fontsize=8)
+    axes[1].set_xticklabels(short, rotation=20, ha="right", fontsize=8)
+    axes[1].set_yticklabels(short, fontsize=8)
     for i in range(n):
         for j in range(n):
-            axes[1].text(j, i, f"{corr_matrix[i,j]:.2f}", ha="center", va="center", fontsize=8)
-    plt.colorbar(im, ax=axes[1], label="Spearman r")
-    axes[1].set_title("Spearman Rank Correlation of Class hl_ratio\nAcross Decade Ranges")
+            axes[1].text(j, i, f"{corr_matrix[i,j]:.2f}", ha="center", va="center",
+                         fontsize=9, color="white" if corr_matrix[i,j] > 0.75 else "black")
+    cb = plt.colorbar(im, ax=axes[1], shrink=0.8)
+    cb.set_label("Spearman $r$")
+    axes[1].set_xlabel("Range")
+    axes[1].set_ylabel("Range")
 
     fig.tight_layout()
-    out = FIGURES_DIR / "fig3_ablation_10e12.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    print(f"Saved {out}")
+    _save(fig, "fig3_ablation.png")
 
 
-# ── Figure 4: PySR formula fit vs actual class hl_ratio ───────────────────────
+# ── Figure 4: PySR fit — scatter + residual lollipop ─────────────────────────
 
 def fig4_pysr_fit():
     stats_df = pd.read_csv(RESIDUE_DIR / "residue_class_stats.csv")
-    eq_df = pd.read_csv(RESIDUE_DIR / "residue_class_equations.csv")
+    eq_df    = pd.read_csv(RESIDUE_DIR / "residue_class_equations.csv")
+    best_eq  = eq_df.sort_values("complexity").iloc[-1]["equation"]
 
-    # Best equation: complexity 11
-    best_row = eq_df.sort_values("complexity").iloc[-1]
-    best_eq = best_row["equation"]
-
-    # Compute predicted values using the best lambda
-    import ast
-    import re
-    # Use sympy_format to evaluate
-    r_vals = stats_df["mod210"].values
-    mod70_r = r_vals % 70
-    dist_7 = np.array([min(r % 7, 7 - r % 7) for r in r_vals], dtype=float)
+    r_vals      = stats_df["mod210"].values
+    mod70_r     = r_vals % 70
+    dist_7      = np.array([min(r % 7, 7 - r % 7) for r in r_vals], dtype=float)
     dist_7_safe = np.where(dist_7 == 0, 1e-9, dist_7)
+    predicted   = -0.00046384882 * r_vals + 1.0286833 + 0.0009837686 * mod70_r / dist_7_safe
+    actual      = stats_df["mean_hl_ratio"].values
 
-    # Best formula: -0.00046384882*mod210 + 1.0286833 + 0.0009837686*mod70_r/dist_7
-    predicted = -0.00046384882 * r_vals + 1.0286833 + 0.0009837686 * mod70_r / dist_7_safe
-    actual = stats_df["mean_hl_ratio"].values
+    r_sp, _ = spearmanr(actual, predicted)
+    residuals = actual - predicted
+    sort_idx  = np.argsort(actual)
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Left: scatter predicted vs actual
-    axes[0].scatter(actual, predicted, color=BLUE, s=50, zorder=3)
-    lim = [min(actual.min(), predicted.min()) - 0.005,
-           max(actual.max(), predicted.max()) + 0.005]
-    axes[0].plot(lim, lim, "r--", linewidth=1.2, label="Perfect fit")
-    r, p = spearmanr(actual, predicted)
-    axes[0].set_xlabel("Actual mean hl_ratio")
+    # Left: scatter with identity line
+    lo = min(actual.min(), predicted.min()) - 0.003
+    hi = max(actual.max(), predicted.max()) + 0.003
+    axes[0].plot([lo, hi], [lo, hi], color=GRAY, linewidth=1.2, linestyle="--",
+                 label="Perfect fit", zorder=1)
+    axes[0].scatter(actual, predicted, color=BLUE, s=60, zorder=3,
+                    edgecolors="white", linewidths=0.6)
+    for i, row in stats_df.iterrows():
+        axes[0].annotate(str(int(row["mod210"])),
+                         xy=(actual[i], predicted[i]),
+                         xytext=(3, 2), textcoords="offset points", fontsize=6)
+    axes[0].set_xlabel("Observed mean hl_ratio")
     axes[0].set_ylabel("PySR predicted hl_ratio")
-    axes[0].set_title(f"PySR Best Formula vs Actual\n(Spearman r={r:.3f})")
     axes[0].legend()
-    axes[0].grid(alpha=0.3)
+    axes[0].text(0.05, 0.95, f"Spearman $r$ = {r_sp:.3f}",
+                 transform=axes[0].transAxes, fontsize=9,
+                 va="top", ha="left",
+                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
 
-    # Right: residuals by class
-    residuals = actual - predicted
-    x = np.argsort(actual)
-    axes[1].bar(range(len(residuals)), residuals[x], color=[
-        RED if v > 0 else BLUE for v in residuals[x]], width=0.7)
-    axes[1].axhline(0, color="black", linewidth=1.0, linestyle="--")
-    axes[1].set_xticks(range(len(stats_df)))
-    axes[1].set_xticklabels(stats_df["mod210"].values[x].astype(str), rotation=60, ha="right")
-    axes[1].set_xlabel("mod210 class (sorted by actual hl_ratio)")
-    axes[1].set_ylabel("Residual (actual − predicted)")
-    axes[1].set_title("Residuals After PySR Correction\n"
-                      f"Formula: {best_eq[:60]}{'...' if len(best_eq)>60 else ''}")
-    axes[1].grid(axis="y", alpha=0.3)
+    # Right: residual lollipop
+    y = np.arange(len(residuals))
+    res_sorted = residuals[sort_idx]
+    labels_sorted = stats_df["mod210"].values[sort_idx].astype(str)
+    colors = [RED if v > 0 else BLUE for v in res_sorted]
+    axes[1].axvline(0, color="black", linewidth=1.0, linestyle="--", zorder=1)
+    for yi, (res, c) in enumerate(zip(res_sorted, colors)):
+        axes[1].plot([0, res], [yi, yi], color=c, linewidth=1.1, zorder=2)
+        axes[1].scatter(res, yi, color=c, s=45, zorder=3,
+                        edgecolors="white", linewidths=0.5)
+    axes[1].set_yticks(y)
+    axes[1].set_yticklabels(labels_sorted, fontsize=7)
+    axes[1].set_xlabel("Residual (observed $-$ predicted)")
+    axes[1].set_ylabel("$p\\,\\mathrm{mod}\\,210$ (sorted by observed hl_ratio)")
+    axes[1].grid(axis="x", alpha=0.25)
+    axes[1].grid(axis="y", alpha=0)
 
     fig.tight_layout()
-    out = FIGURES_DIR / "fig4_pysr_fit.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    print(f"Saved {out}")
+    _save(fig, "fig4_pysr_fit.png")
+
+
+# ── Figure 5: LO&S — transition heatmap + anti-persistence scatter ────────────
+
+def fig5_los():
+    los_file   = RESIDUE_DIR / "los_comparison.csv"
+    trans_file = RESIDUE_DIR / "los_transition.csv"
+    if not los_file.exists() or not trans_file.exists():
+        print("LO&S files not found. Run: python los_comparison.py")
+        return
+
+    comp_df  = pd.read_csv(los_file)
+    trans_df = pd.read_csv(trans_file, index_col=0)
+    trans_df.columns = trans_df.columns.astype(int)
+    trans_df.index   = trans_df.index.astype(int)
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+
+    # Left: transition matrix heatmap
+    classes = sorted(trans_df.index)
+    mat = trans_df.loc[classes, classes].values
+    n   = len(classes)
+    uniform = 1.0 / n
+    # Center colormap around uniform rate
+    vmax = max(abs(mat - uniform).max() * 2, 0.01)
+    im = axes[0].imshow(mat, cmap="RdBu_r",
+                        vmin=uniform - vmax/2, vmax=uniform + vmax/2,
+                        aspect="auto")
+    axes[0].set_xticks(range(n))
+    axes[0].set_yticks(range(n))
+    axes[0].set_xticklabels([str(c) for c in classes], rotation=60, ha="right", fontsize=7)
+    axes[0].set_yticklabels([str(c) for c in classes], fontsize=7)
+    axes[0].set_xlabel("Next twin prime class $p_{n+1}\\,\\mathrm{mod}\\,210$")
+    axes[0].set_ylabel("Current class $p_n\\,\\mathrm{mod}\\,210$")
+    cb = plt.colorbar(im, ax=axes[0], shrink=0.85)
+    cb.set_label("Transition probability")
+
+    # Highlight diagonal
+    for i in range(n):
+        axes[0].add_patch(plt.Rectangle((i - 0.5, i - 0.5), 1, 1,
+                          fill=False, edgecolor="black", linewidth=1.2))
+
+    # Right: diagonal rate vs mean hl_ratio scatter
+    r_s, p_s = spearmanr(comp_df["diagonal_rate"], comp_df["mean_hl_ratio"])
+    axes[1].axvline(uniform, color=GRAY, linewidth=1.0, linestyle=":",
+                    label=f"Uniform baseline ({uniform:.3f})")
+    axes[1].scatter(comp_df["diagonal_rate"], comp_df["mean_hl_ratio"],
+                    color=TEAL, s=65, zorder=3, edgecolors="white", linewidths=0.6)
+    for _, row in comp_df.iterrows():
+        axes[1].annotate(str(int(row["mod210"])),
+                         xy=(row["diagonal_rate"], row["mean_hl_ratio"]),
+                         xytext=(4, 2), textcoords="offset points", fontsize=6.5)
+    axes[1].set_xlabel("Self-transition rate $P(r \\to r)$")
+    axes[1].set_ylabel("Mean gap hl_ratio")
+    axes[1].text(0.05, 0.95, f"Spearman $r$ = {r_s:.3f}\n$p$ = {p_s:.2e}",
+                 transform=axes[1].transAxes, fontsize=9, va="top",
+                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+    axes[1].legend()
+
+    fig.tight_layout()
+    _save(fig, "fig5_los.png")
 
 
 def main():
@@ -237,6 +324,7 @@ def main():
     fig2_significance()
     fig3_ablation()
     fig4_pysr_fit()
+    fig5_los()
     print(f"\nAll figures saved to {FIGURES_DIR}/")
 
 
