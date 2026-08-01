@@ -105,7 +105,7 @@ fn gen_pg_parameters(prime: usize) -> (usize, usize, usize, Vec<usize>, Vec<usiz
   (modpg, res_0, restwins.len(), restwins, inverses)
 }
 
-fn set_sieve_parameters(start_num: usize, end_num: usize) ->
+fn set_sieve_parameters(start_num: usize, end_num: usize, min_pg: usize) ->
   (usize, usize, usize, usize, usize, usize, usize, Vec<usize>, Vec<usize>) {
   // Select at runtime best PG and segment size parameters for input values.
   // These are good estimates derived from PG data profiling. Can be improved.
@@ -128,6 +128,8 @@ fn set_sieve_parameters(start_num: usize, end_num: usize) ->
   } else {
     bn = 384; pg = 17;
   }
+  // per-class binning may need a larger PG so the class modulus divides modpg
+  let pg = std::cmp::max(pg, min_pg);
   let (modpg, res_0, pairscnt, restwins, resinvrs) = gen_pg_parameters(pg);
   let kmin = (start_num-2) / modpg + 1;  // number of resgroups to start_num
   let kmax = (end_num - 2) / modpg + 1;  // number of resgroups to end_num
@@ -271,7 +273,29 @@ fn twins_sieve(r_hi: usize, kmin: usize, kmax: usize, ks: usize, start_num: usiz
 
 fn main() {
   let all_args: Vec<String> = std::env::args().collect();
-  let per_class = all_args.iter().any(|a| a == "--per-class");
+  // --per-class bins twin counts mod 210; --per-class-mod=2310 (or any
+  // primorial dividing a PG modulus) selects the binning modulus explicitly.
+  let mut class_mod: Option<usize> = None;
+  for a in &all_args {
+    if a == "--per-class" && class_mod.is_none() { class_mod = Some(210); }
+    if let Some(v) = a.strip_prefix("--per-class-mod=") {
+      class_mod = Some(v.replace('_', "").parse().expect("bad --per-class-mod value"));
+    }
+  }
+  // smallest PG whose modulus the class modulus divides (forces PG upgrade
+  // for small ranges, e.g. mod 2310 at 1e9 needs P11 instead of P7)
+  let min_pg = match class_mod {
+    None => 0,
+    Some(m) => {
+      let (mut modpg, mut pg) = (1usize, 0usize);
+      for p in [2, 3, 5, 7, 11, 13, 17] {
+        modpg *= p; pg = p;
+        if modpg % m == 0 { break }
+      }
+      if modpg % m != 0 { panic!("--per-class-mod={} divides no PG modulus", m) }
+      pg
+    }
+  };
   // Filter flags so numeric args are positionally correct
   let nums: Vec<String> = all_args[1..].iter()
       .filter(|a| !a.starts_with('-'))
@@ -290,7 +314,7 @@ fn main() {
   println!("threads = {}", num_cpus::get());
   let ts = SystemTime::now();            // start timing sieve setup execution
                                          // select Pn, set sieving params for inputs
-  let (modpg, res_0, ks, kmin, kmax, krange, pairscnt, restwins, resinvrs) = set_sieve_parameters(start_num, end_num);
+  let (modpg, res_0, ks, kmin, kmax, krange, pairscnt, restwins, resinvrs) = set_sieve_parameters(start_num, end_num, min_pg);
 
   // create sieve primes <= sqrt(end_num), only use those whose multiples within inputs range
   let primes: Vec<usize> = if end_num < 49 { vec![5] }
@@ -331,19 +355,19 @@ fn main() {
   println!("last segment = {} resgroups; segment slices = {}", kn, (krange - 1)/ks + 1);
   println!("total twins = {}; last twin = {}|-2", twinscnt, last_twin);
 
-  if per_class {
-    if modpg < 210 {
-      eprintln!("WARNING: --per-class needs modpg>=210; use range > 77M");
+  if let Some(cmod) = class_mod {
+    if modpg % cmod != 0 {
+      eprintln!("WARNING: --per-class mod {} does not divide modpg {}", cmod, modpg);
     } else {
       // Each restwins[i]-2 is the lower residue of that twin pair in the PG ring.
-      // Since 210 | modpg for all PG>=P7, (r_hi-2) % 210 gives the mod210 class.
-      let mut class_counts = [0usize; 210];
+      // Since cmod | modpg, (r_hi-2) % cmod gives the class of the lower member.
+      let mut class_counts = vec![0usize; cmod];
       for (i, r_hi) in restwins.iter().enumerate() {
         // modpg+1 is the valid (modpg-1, modpg+1) twin pair, not a sentinel
-        let lo_res = (r_hi - 2) % 210;
+        let lo_res = (r_hi - 2) % cmod;
         class_counts[lo_res] += cnts[i];
       }
-      println!("mod210,count");
+      println!("mod{},count", cmod);
       for (r, &cnt) in class_counts.iter().enumerate() {
         if cnt > 0 { println!("{},{}", r, cnt); }
       }

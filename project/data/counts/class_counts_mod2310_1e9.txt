@@ -1,0 +1,148 @@
+threads = 8
+using Prime Generator parameters for P11
+segment size = 327680 resgroups; seg array is [1 x 5120] 64-bits
+twinprime candidates = 58441635; resgroups = 432901
+each of 135 threads has nextp[2 x 3396] array
+setup time = 0.001019 secs
+perform twinprimes ssoz sieve
+1 of 135 twinpairs done2 of 135 twinpairs done3 of 135 twinpairs done4 of 135 twinpairs done5 of 135 twinpairs done6 of 135 twinpairs done7 of 135 twinpairs done8 of 135 twinpairs done9 of 135 twinpairs done10 of 135 twinpairs done11 of 135 twinpairs done12 of 135 twinpairs done13 of 135 twinpairs done14 of 135 twinpairs done15 of 135 twinpairs done16 of 135 twinpairs done17 of 135 twinpairs done18 of 135 twinpairs done19 of 135 twinpairs done20 of 135 twinpairs done21 of 135 twinpairs done22 of 135 twinpairs done23 of 135 twinpairs done24 of 135 twinpairs done25 of 135 twinpairs done26 of 135 twinpairs done27 of 135 twinpairs done28 of 135 twinpairs done29 of 135 twinpairs done30 of 135 twinpairs done31 of 135 twinpairs done32 of 135 twinpairs done33 of 135 twinpairs done34 of 135 twinpairs done35 of 135 twinpairs done36 of 135 twinpairs done37 of 135 twinpairs done38 of 135 twinpairs done39 of 135 twinpairs done40 of 135 twinpairs done41 of 135 twinpairs done42 of 135 twinpairs done43 of 135 twinpairs done44 of 135 twinpairs done45 of 135 twinpairs done46 of 135 twinpairs done47 of 135 twinpairs done48 of 135 twinpairs done49 of 135 twinpairs done50 of 135 twinpairs done51 of 135 twinpairs done52 of 135 twinpairs done53 of 135 twinpairs done54 of 135 twinpairs done55 of 135 twinpairs done56 of 135 twinpairs done57 of 135 twinpairs done58 of 135 twinpairs done59 of 135 twinpairs done60 of 135 twinpairs done61 of 135 twinpairs done62 of 135 twinpairs done63 of 135 twinpairs done64 of 135 twinpairs done65 of 135 twinpairs done66 of 135 twinpairs done67 of 135 twinpairs done68 of 135 twinpairs done69 of 135 twinpairs done70 of 135 twinpairs done71 of 135 twinpairs done72 of 135 twinpairs done73 of 135 twinpairs done74 of 135 twinpairs done75 of 135 twinpairs done76 of 135 twinpairs done77 of 135 twinpairs done78 of 135 twinpairs done79 of 135 twinpairs done80 of 135 twinpairs done81 of 135 twinpairs done82 of 135 twinpairs done83 of 135 twinpairs done84 of 135 twinpairs done85 of 135 twinpairs done86 of 135 twinpairs done87 of 135 twinpairs done88 of 135 twinpairs done89 of 135 twinpairs done90 of 135 twinpairs done91 of 135 twinpairs done92 of 135 twinpairs done93 of 135 twinpairs done94 of 135 twinpairs done95 of 135 twinpairs done96 of 135 twinpairs done97 of 135 twinpairs done98 of 135 twinpairs done99 of 135 twinpairs done100 of 135 twinpairs done101 of 135 twinpairs done102 of 135 twinpairs done103 of 135 twinpairs done104 of 135 twinpairs done105 of 135 twinpairs done106 of 135 twinpairs done107 of 135 twinpairs done108 of 135 twinpairs done109 of 135 twinpairs done110 of 135 twinpairs done111 of 135 twinpairs done112 of 135 twinpairs done113 of 135 twinpairs done114 of 135 twinpairs done115 of 135 twinpairs done116 of 135 twinpairs done117 of 135 twinpairs done118 of 135 twinpairs done119 of 135 twinpairs done120 of 135 twinpairs done121 of 135 twinpairs done122 of 135 twinpairs done123 of 135 twinpairs done124 of 135 twinpairs done125 of 135 twinpairs done126 of 135 twinpairs done127 of 135 twinpairs done128 of 135 twinpairs done129 of 135 twinpairs done130 of 135 twinpairs done131 of 135 twinpairs done132 of 135 twinpairs done133 of 135 twinpairs done134 of 135 twinpairs done135 of 135 twinpairs done
+sieve time = 0.031386 secs
+total time = 0.03242 secs
+last segment = 105221 resgroups; segment slices = 2
+total twins = 3424506; last twin = 999999193|-2
+mod2310,count
+17,25354
+29,25473
+41,25373
+59,25242
+71,25457
+101,25349
+107,25539
+137,25247
+149,25252
+167,25423
+179,25371
+191,25337
+197,25509
+221,25262
+227,25479
+239,25411
+269,25331
+281,25135
+311,25431
+347,25236
+359,25342
+377,25465
+389,25327
+401,25331
+419,25195
+431,25416
+437,25283
+461,25330
+479,25358
+491,25324
+521,25235
+527,25434
+557,25491
+569,25488
+587,25322
+599,25556
+611,25375
+617,25463
+629,25529
+641,25424
+659,25472
+689,25468
+701,25390
+731,25420
+767,25394
+797,25318
+809,25339
+821,25345
+827,25363
+839,25487
+851,25411
+857,25349
+881,25343
+899,25310
+941,25349
+947,25496
+989,25307
+1007,25406
+1019,25386
+1031,25398
+1037,25542
+1049,25412
+1061,25301
+1079,25474
+1091,25284
+1121,25463
+1151,25306
+1157,25509
+1187,25357
+1217,25284
+1229,25360
+1247,25194
+1259,25146
+1271,25411
+1277,25417
+1289,25250
+1301,25435
+1319,25416
+1361,25224
+1367,25295
+1409,25414
+1427,25543
+1451,25395
+1457,25585
+1469,25327
+1481,25235
+1487,25511
+1499,25398
+1511,25326
+1541,25313
+1577,25422
+1607,25312
+1619,25340
+1649,25280
+1667,25432
+1679,25296
+1691,25385
+1697,25206
+1709,25353
+1721,25381
+1739,25271
+1751,25469
+1781,25459
+1787,25396
+1817,25347
+1829,25187
+1847,25322
+1871,25079
+1877,25280
+1889,25424
+1907,25305
+1919,25235
+1931,25236
+1949,25420
+1961,25419
+1997,25356
+2027,25423
+2039,25538
+2069,25290
+2081,25257
+2087,25340
+2111,25398
+2117,25465
+2129,25444
+2141,25457
+2159,25258
+2171,25420
+2201,25491
+2207,25101
+2237,25290
+2249,25349
+2267,25323
+2279,25437
+2291,25637
+2309,25196
