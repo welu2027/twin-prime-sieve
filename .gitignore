@@ -8,6 +8,12 @@ __pycache__/
 project/venv/
 venv/
 
+# Private project notes — do not commit (public repo)
+docs.md
+
+# Secrets — never commit
+.env
+
 # Large data files — too big to commit
 *.parquet
 *.pkl
